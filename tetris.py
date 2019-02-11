@@ -1,5 +1,6 @@
 import sys
 import os
+from random import choice
 
 import pygame
 
@@ -18,6 +19,9 @@ class Display:
         self.width = width
         self.height = height
         self.board = [[0] * width for _ in range(height)]
+        self.block, self.new = '', ''
+        self.temp, self.coords = [], []
+        self.color = 0
         self.left = 10
         self.top = 10
         self.cell_size = 30
@@ -32,8 +36,12 @@ class Display:
             for col in range(self.width):
                 x, y = col * self.cell_size + self.left, row * self.cell_size + self.top
 
-                pygame.draw.rect(screen, COLORS[self.board[row][col] - 1],
-                                 (x + 1, y + 1, self.cell_size - 2, self.cell_size - 2))
+                if (col, row) in self.coords:
+                    pygame.draw.rect(screen, COLORS[self.color - 1],
+                                     (x + 1, y + 1, self.cell_size - 2, self.cell_size - 2))
+                else:
+                    pygame.draw.rect(screen, COLORS[self.board[row][col] - 1],
+                                     (x + 1, y + 1, self.cell_size - 2, self.cell_size - 2))
 
                 pygame.draw.rect(screen, (30, 30, 30), (x, y, self.cell_size, self.cell_size), 1)
 
@@ -44,11 +52,147 @@ class Display:
                            (right, bottom),
                            (right, self.top)))
 
-    def line(self, x, y):
-        pass
+    def check_coords(self):
+        for x, y in self.temp:
+            if x < 0 or y < 0 or x >= self.width or y >= self.height:
+                return False
+            elif self.board[y][x] != 0:
+                return False
+        self.coords = self.temp.copy()
+        return True
+
+    def line1(self, x, y):
+        self.temp = [(x - 1, y), (x, y), (x + 1, y), (x + 2, y)]
+        self.color = 1
+        self.new = 'line1'
+
+    def line2(self, x, y):
+        self.temp = [(x, y - 1), (x, y), (x, y + 1), (x, y + 2)]
+        self.new = 'line2'
 
     def square(self, x, y):
-        pass
+        self.temp = [(x, y), (x + 1, y), (x, y + 1), (x + 1, y + 1)]
+        self.color = 2
+        self.new = 'square'
+
+    def l1(self, x, y):
+        self.temp = [(x, y), (x, y + 1), (x + 1, y + 1), (x + 2, y + 1)]
+        self.color = 3
+        self.new = 'l1'
+
+    def l2(self, x, y):
+        self.temp = [(x + 1, y), (x + 1, y + 1), (x + 1, y + 2), (x + 2, y)]
+        self.new = 'l2'
+
+    def l3(self, x, y):
+        self.temp = [(x, y), (x + 1, y), (x + 2, y), (x + 2, y + 1)]
+        self.new = 'l3'
+
+    def l4(self, x, y):
+        self.temp = [(x + 1, y), (x + 1, y + 1), (x + 1, y + 2), (x, y + 2)]
+        self.new = 'l4'
+
+    def r_l1(self, x, y):
+        self.temp = [(x, y + 1), (x + 1, y + 1), (x + 2, y + 1), (x + 2, y)]
+        self.color = 4
+        self.new = 'r_l1'
+
+    def r_l2(self, x, y):
+        self.temp = [(x + 1, y), (x + 1, y + 1), (x + 1, y + 2), (x + 2, y + 2)]
+        self.new = 'r_l2'
+
+    def r_l3(self, x, y):
+        self.temp = [(x, y + 1), (x, y), (x + 1, y), (x + 2, y)]
+        self.new = 'r_l3'
+
+    def r_l4(self, x, y):
+        self.temp = [(x, y), (x + 1, y), (x + 1, y + 1), (x + 1, y + 2)]
+        self.new = 'r_l4'
+
+    def z1(self, x, y):
+        self.temp = [(x, y + 1), (x + 1, y + 1), (x + 1, y), (x + 2, y)]
+        self.color = 5
+        self.new = 'z1'
+
+    def z2(self, x, y):
+        self.temp = [(x, y), (x, y + 1), (x + 1, y + 1), (x + 1, y + 2)]
+        self.new = 'z2'
+
+    def r_z1(self, x, y):
+        self.temp = [(x, y), (x + 1, y), (x + 1, y + 1), (x + 2, y + 1)]
+        self.color = 6
+        self.new = 'r_z1'
+
+    def r_z2(self, x, y):
+        self.temp = [(x + 1, y), (x + 1, y + 1), (x, y + 1), (x, y + 2)]
+        self.new = 'r_z2'
+
+    def t1(self, x, y):
+        self.temp = [(x, y + 1), (x + 1, y), (x + 1, y + 1), (x + 2, y + 1)]
+        self.color = 7
+        self.new = 't1'
+
+    def t2(self, x, y):
+        self.temp = [(x + 1, y), (x + 1, y + 1), (x + 2, y + 1), (x + 1, y + 2)]
+        self.new = 't2'
+
+    def t3(self, x, y):
+        self.temp = [(x, y + 1), (x + 1, y + 1), (x + 2, y + 1), (x + 1, y + 2)]
+        self.new = 't3'
+
+    def t4(self, x, y):
+        self.temp = [(x + 1, y), (x + 1, y + 1), (x, y + 1), (x + 1, y + 2)]
+        self.new = 't4'
+
+    def add(self):
+        for x, y in self.coords:
+            self.board[y][x] = self.color
+
+    def turn(self, x, y):
+        if self.block == 'line1':
+            self.line2(x, y)
+        elif self.block == 'line2':
+            self.line1(x, y)
+        elif self.block == 'l1':
+            self.l2(x, y)
+        elif self.block == 'l2':
+            self.l3(x, y)
+        elif self.block == 'l3':
+            self.l4(x, y)
+        elif self.block == 'l4':
+            self.l1(x, y)
+        elif self.block == 'r_l1':
+            self.r_l2(x, y)
+        elif self.block == 'r_l2':
+            self.r_l3(x, y)
+        elif self.block == 'r_l3':
+            self.r_l4(x, y)
+        elif self.block == 'r_l4':
+            self.r_l1(x, y)
+        elif self.block == 'z1':
+            self.z2(x, y)
+        elif self.block == 'z2':
+            self.z1(x, y)
+        elif self.block == 'r_z1':
+            self.r_z2(x, y)
+        elif self.block == 'r_z2':
+            self.r_z1(x, y)
+        elif self.block == 't1':
+            self.t2(x, y)
+        elif self.block == 't2':
+            self.t3(x, y)
+        elif self.block == 't3':
+            self.t4(x, y)
+        elif self.block == 't4':
+            self.t1(x, y)
+
+    def perform(self, x, y):
+        eval('self.{0}({1}, {2})'.format(self.block, x, y))
+
+
+def choose():
+    block = choice(['line1', 'l1', 'r_l1', 'z1', 'r_z1', 'square', 't1'])
+    return block
 
 
 class NextBlock(Display):
@@ -140,21 +284,68 @@ def game():
     next_block_lbl_rect.topleft = (470, 300)
     screen.blit(next_block_lbl, next_block_lbl_rect)
 
+    pos_x, pos_y = 4, 0
+    count = 0
+    speed = 50
+
+    next_block.block = choose()
+    display.block = choose()
+
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP:
-                    pass
+                    display.turn(pos_x, pos_y)
+
+                    if display.check_coords():
+                        display.block = display.new
+
                 elif event.key == pygame.K_LEFT:
-                    pass
+                    display.perform(pos_x - 1, pos_y)
+
+                    if display.check_coords():
+                        pos_x -= 1
+
                 elif event.key == pygame.K_RIGHT:
-                    pass
+                    display.perform(pos_x + 1, pos_y)
+
+                    if display.check_coords():
+                        pos_x += 1
+
                 elif event.key == pygame.K_DOWN:
-                    pass
+                    if speed == 50:
+                        speed = 5
+                    else:
+                        speed = 50
+                    count = 0
+
+        count += 1
+        if count == speed:
+            pos_y += 1
+            count = 0
 
         screen.blit(background, (0, 0))
+
+        display.perform(pos_x, pos_y + 1)
+        if not display.check_coords():
+            if (pos_x, pos_y) == (4, 0):
+                return
+            display.perform(pos_x, pos_y)
+            display.check_coords()
+            display.add()
+            pos_x, pos_y = 4, 0
+            display.block = next_block.block
+            next_block.block = choose()
+            speed = 50
+
+        display.perform(pos_x, pos_y)
+        display.check_coords()
+
+        next_block.perform(1, 0)
+        next_block.check_coords()
+
         display.render()
         next_block.render()
         screen.blit(next_block_lbl, next_block_lbl_rect)
@@ -163,15 +354,14 @@ def game():
 
 
 def game_over():
-    pass
+    print('GAME OVER')
 
 
 def main():
     start_screen()
 
-    while True:
-        game()
-        game_over()
+    game()
+    game_over()
 
 
 if __name__ == '__main__':
