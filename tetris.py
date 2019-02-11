@@ -189,6 +189,12 @@ class Display:
     def perform(self, x, y):
         eval('self.{0}({1}, {2})'.format(self.block, x, y))
 
+    def check_lines(self):
+        for i in range(len(self.board)):
+            if 0 not in self.board[i]:
+                del self.board[i]
+                self.board.insert(0, [0]*self.width)
+
 
 def choose():
     block = choice(['line1', 'l1', 'r_l1', 'z1', 'r_z1', 'square', 't1'])
@@ -342,6 +348,8 @@ def game():
 
         display.perform(pos_x, pos_y)
         display.check_coords()
+
+        display.check_lines()
 
         next_block.perform(1, 0)
         next_block.check_coords()
