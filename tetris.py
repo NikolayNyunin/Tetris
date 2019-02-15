@@ -234,6 +234,9 @@ def start_screen():
     screen.blit(background, (0, 0))
     font = pygame.font.Font(None, 60)
 
+    pygame.mixer.music.load('1.mp3')
+    pygame.mixer.music.play(-1)
+
     start_button = font.render('Начать игру', 1, pygame.Color('white'))
     start_button_rect = start_button.get_rect()
     start_button_rect.topleft = (80, 100)
@@ -254,6 +257,7 @@ def start_screen():
 
                 if start_button_rect.collidepoint(event.pos):
                     start_button = font.render('Начать игру', 1, pygame.Color('purple'))
+                    pygame.mixer.music.pause()
                 else:
                     start_button = font.render('Начать игру', 1, pygame.Color('white'))
                 if quit_button_rect.collidepoint(event.pos):
@@ -277,6 +281,9 @@ def start_screen():
 def game():
     background = pygame.transform.scale(load_image('background.png'), (WIDTH, HEIGHT))
     screen.blit(background, (0, 0))
+          
+    pygame.mixer.music.load('2.mp3')
+    pygame.mixer.music.play(-1)
 
     display = Display(10, 20)
     display.set_view(100, 100, 30)
@@ -365,6 +372,10 @@ def game_over():
     background = pygame.transform.scale(load_image('gameover2.png'), (WIDTH, HEIGHT))
     screen.blit(background, (0, 0))
     font = pygame.font.Font(None, 60)
+
+    pygame.mixer.music.pause()
+    pygame.mixer.music.load('3.mp3')
+    pygame.mixer.music.play()
 
     start1_button = font.render('Желаете ли вы начать игру заново?', 1, pygame.Color('white'))
     start1_button_rect = start1_button.get_rect()
