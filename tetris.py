@@ -5,7 +5,7 @@ from random import choice
 import pygame
 
 FPS = 50
-WIDTH, HEIGHT = 800, 800
+WIDTH, HEIGHT = 1200, 900
 COLORS = [pygame.Color('red'), pygame.Color('green'), pygame.Color('blue'), pygame.Color('orange'),
           pygame.Color('yellow'), pygame.Color('purple'), (66, 170, 255), pygame.Color('black')]
 
@@ -189,11 +189,13 @@ class Display:
     def perform(self, x, y):
         eval('self.{0}({1}, {2})'.format(self.block, x, y))
 
-    def check_lines(self):
+    def check_lines(self, score):
         for i in range(len(self.board)):
             if 0 not in self.board[i]:
                 del self.board[i]
                 self.board.insert(0, [0]*self.width)
+                score += 10
+        return score
 
 
 def choose():
@@ -232,7 +234,7 @@ def terminate():
 def start_screen():
     background = pygame.transform.scale(load_image('background.png'), (WIDTH, HEIGHT))
     screen.blit(background, (0, 0))
-    font = pygame.font.Font(None, 60)
+    font = pygame.font.Font(None, 80)
 
     start_button = font.render('Начать игру', 1, pygame.Color('white'))
     start_button_rect = start_button.get_rect()
@@ -241,7 +243,7 @@ def start_screen():
 
     quit_button = font.render('Выйти на рабочий стол', 1, pygame.Color('white'))
     quit_button_rect = quit_button.get_rect()
-    quit_button_rect.topleft = (80, 200)
+    quit_button_rect.topleft = (80, 240)
     screen.blit(quit_button, quit_button_rect)
 
     while True:
@@ -275,20 +277,49 @@ def start_screen():
 
 
 def game():
-    background = pygame.transform.scale(load_image('background.png'), (WIDTH, HEIGHT))
+    background = pygame.transform.scale(load_image('background2.jpg'), (WIDTH, HEIGHT))
     screen.blit(background, (0, 0))
 
     display = Display(10, 20)
-    display.set_view(100, 100, 30)
+    display.set_view(400, 50, 40)
 
     next_block = NextBlock(4, 2)
-    next_block.set_view(500, 350, 50)
+    next_block.set_view(80, 180, 60)
 
-    font = pygame.font.Font(None, 40)
+    font = pygame.font.Font(None, 50)
     next_block_lbl = font.render('Следующий блок:', 1, pygame.Color('white'), pygame.Color('black'))
     next_block_lbl_rect = next_block_lbl.get_rect()
-    next_block_lbl_rect.topleft = (470, 300)
+    next_block_lbl_rect.topleft = (45, 100)
     screen.blit(next_block_lbl, next_block_lbl_rect)
+
+    score_lbl = font.render('Счёт:', 1, pygame.Color('white'), pygame.Color('black'))
+    score_lbl_rect = score_lbl.get_rect()
+    score_lbl_rect.topleft = (900, 200)
+    screen.blit(score_lbl, score_lbl_rect)
+
+    score = 0
+    score_view = font.render(str(score), 1, pygame.Color('white'), pygame.Color('black'))
+    score_view_rect = score_view.get_rect()
+    score_view_rect.topleft = (1050, 200)
+    screen.blit(score_view, score_view_rect)
+
+    with open('data/highscore.txt', mode='r+', encoding='utf-8') as file:
+        data = file.read()
+        try:
+            high_score = int(data)
+        except ValueError:
+            high_score = 0
+            file.write('0')
+
+    high_score_lbl = font.render('Рекорд:', 1, pygame.Color('white'), pygame.Color('black'))
+    high_score_lbl_rect = high_score_lbl.get_rect()
+    high_score_lbl_rect.topleft = (900, 100)
+    screen.blit(high_score_lbl, high_score_lbl_rect)
+
+    high_score_view = font.render(str(high_score), 1, pygame.Color('white'), pygame.Color('black'))
+    high_score_view_rect = high_score_view.get_rect()
+    high_score_view_rect.topleft = (1100, 100)
+    screen.blit(high_score_view, high_score_view_rect)
 
     pos_x, pos_y = 4, 0
     count = 0
@@ -300,6 +331,9 @@ def game():
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                if score >= high_score:
+                    with open('data/highscore.txt', mode='w', encoding='utf-8') as file:
+                        file.write(str(high_score))
                 terminate()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP:
@@ -349,14 +383,30 @@ def game():
         display.perform(pos_x, pos_y)
         display.check_coords()
 
-        display.check_lines()
+        if display.board[0] != [0] * display.width:
+            with open('data/highscore.txt', mode='w', encoding='utf-8') as file:
+                file.write(str(high_score))
+            return
+
+        score = display.check_lines(score)
+        if score > high_score:
+            high_score = score
+        score_view = font.render(str(score), 1, pygame.Color('white'), pygame.Color('black'))
 
         next_block.perform(1, 0)
         next_block.check_coords()
 
         display.render()
         next_block.render()
+
+        high_score_view = font.render(str(high_score), 1, pygame.Color('white'), pygame.Color('black'))
+
         screen.blit(next_block_lbl, next_block_lbl_rect)
+        screen.blit(score_lbl, score_lbl_rect)
+        screen.blit(score_view, score_view_rect)
+        screen.blit(high_score_lbl, high_score_lbl_rect)
+        screen.blit(high_score_view, high_score_view_rect)
+
         pygame.display.flip()
         clock.tick(FPS)
 
@@ -368,8 +418,9 @@ def game_over():
 def main():
     start_screen()
 
-    game()
-    game_over()
+    while True:
+        game()
+        game_over()
 
 
 if __name__ == '__main__':
