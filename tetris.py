@@ -236,6 +236,9 @@ def start_screen():
     screen.blit(background, (0, 0))
     font = pygame.font.Font(None, 80)
 
+    pygame.mixer.music.load('1.mp3')
+    pygame.mixer.music.play(-1)
+
     start_button = font.render('Начать игру', 1, pygame.Color('white'))
     start_button_rect = start_button.get_rect()
     start_button_rect.topleft = (80, 100)
@@ -256,6 +259,7 @@ def start_screen():
 
                 if start_button_rect.collidepoint(event.pos):
                     start_button = font.render('Начать игру', 1, pygame.Color('purple'))
+                    pygame.mixer.music.pause()
                 else:
                     start_button = font.render('Начать игру', 1, pygame.Color('white'))
                 if quit_button_rect.collidepoint(event.pos):
@@ -279,6 +283,9 @@ def start_screen():
 def game():
     background = pygame.transform.scale(load_image('background2.jpg'), (WIDTH, HEIGHT))
     screen.blit(background, (0, 0))
+          
+    pygame.mixer.music.load('2.mp3')
+    pygame.mixer.music.play(-1)
 
     display = Display(10, 20)
     display.set_view(400, 50, 40)
@@ -412,7 +419,58 @@ def game():
 
 
 def game_over():
-    print('GAME OVER')
+    background = pygame.transform.scale(load_image('gameover2.png'), (WIDTH, HEIGHT))
+    screen.blit(background, (0, 0))
+    font = pygame.font.Font(None, 60)
+
+    pygame.mixer.music.pause()
+    pygame.mixer.music.load('3.mp3')
+    pygame.mixer.music.play()
+
+    start1_button = font.render('Желаете ли вы начать игру заново?', 1, pygame.Color('white'))
+    start1_button_rect = start1_button.get_rect()
+    start1_button_rect.topleft = (130, 80)
+    screen.blit(start1_button, start1_button_rect)
+
+    start_button = font.render('Да', 1, pygame.Color('white'))
+    start_button_rect = start_button.get_rect()
+    start_button_rect.topleft = (350, 150)
+    screen.blit(start_button, start_button_rect)
+
+    quit_button = font.render('Нет', 1, pygame.Color('white'))
+    quit_button_rect = quit_button.get_rect()
+    quit_button_rect.topleft = (550, 150)
+    screen.blit(quit_button, quit_button_rect)
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+
+            elif event.type == pygame.MOUSEMOTION:
+                screen.blit(background, (0, 0))
+
+                if start_button_rect.collidepoint(event.pos):
+                    start_button = font.render('Да', 1, pygame.Color('purple'))
+                else:
+                    start_button = font.render('Да', 1, pygame.Color('white'))
+                if quit_button_rect.collidepoint(event.pos):
+                    quit_button = font.render('Нет', 1, pygame.Color('purple'))
+                else:
+                    quit_button = font.render('Нет', 1, pygame.Color('white'))
+
+                screen.blit(start1_button, start1_button_rect)
+                screen.blit(start_button, start_button_rect)
+                screen.blit(quit_button, quit_button_rect)
+
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if start_button_rect.collidepoint(event.pos):
+                    return
+                elif quit_button_rect.collidepoint(event.pos):
+                    terminate()
+
+        pygame.display.flip()
+        clock.tick(FPS)
 
 
 def main():
