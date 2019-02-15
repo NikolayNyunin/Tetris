@@ -236,7 +236,7 @@ def start_screen():
     screen.blit(background, (0, 0))
     font = pygame.font.Font(None, 80)
 
-    pygame.mixer.music.load('1.mp3')
+    pygame.mixer.music.load('data/1.mp3')
     pygame.mixer.music.play(-1)
 
     start_button = font.render('Начать игру', 1, pygame.Color('white'))
@@ -284,7 +284,7 @@ def game():
     background = pygame.transform.scale(load_image('background2.jpg'), (WIDTH, HEIGHT))
     screen.blit(background, (0, 0))
           
-    pygame.mixer.music.load('2.mp3')
+    pygame.mixer.music.load('data/2.mp3')
     pygame.mixer.music.play(-1)
 
     display = Display(10, 20)
@@ -424,7 +424,7 @@ def game_over():
     font = pygame.font.Font(None, 60)
 
     pygame.mixer.music.pause()
-    pygame.mixer.music.load('3.mp3')
+    pygame.mixer.music.load('data/3.mp3')
     pygame.mixer.music.play()
 
     start1_button = font.render('Желаете ли вы начать игру заново?', 1, pygame.Color('white'))
