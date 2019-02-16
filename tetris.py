@@ -283,7 +283,7 @@ def start_screen():
 def game():
     background = pygame.transform.scale(load_image('background2.jpg'), (WIDTH, HEIGHT))
     screen.blit(background, (0, 0))
-          
+
     pygame.mixer.music.load('data/2.mp3')
     pygame.mixer.music.play(-1)
 
@@ -378,6 +378,8 @@ def game():
         display.perform(pos_x, pos_y + 1)
         if not display.check_coords():
             if (pos_x, pos_y) == (4, 0):
+                with open('data/highscore.txt', mode='w', encoding='utf-8') as file:
+                    file.write(str(high_score))
                 return
             display.perform(pos_x, pos_y)
             display.check_coords()
